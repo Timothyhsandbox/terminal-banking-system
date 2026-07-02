@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 
+#include "bank.hpp"
+#include "account.hpp"
 #include "customer.hpp"
 
 int main(){
