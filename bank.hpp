@@ -11,5 +11,7 @@ friend std::ostream& operator<<(std::ostream &os,const Bank &b);
 private:
     std::unordered_map<std::string,Customer> customers;
     std::unordered_map<std::string,Account> accounts;
-
+public:
+    Account make_account();
+    Customer make_customer();
 };

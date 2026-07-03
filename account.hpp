@@ -6,12 +6,12 @@
 class Account{
 friend std::ostream& operator<<(std::ostream &os,const Account &a);
 private:
-    std::string account_number;
-    std::string owner_id;
-    float balance;
-    std::string status;
-    std::string datetime_created;
-    std::string pin;
+    std::string account_number; //Still don't have a randomizer.
+    std::string owner_id; //Done
+    std::string status; //Set default to Active can change to frozen and closed.
+    std::string datetime_created; //Need datetime ganerator. 
+    std::string pin; //Done
+    float balance; //Done
 public:
     Account();
     void deposit();
