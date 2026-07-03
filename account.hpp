@@ -11,11 +11,11 @@ private:
     std::string status; //Set default to Active can change to frozen and closed.
     std::string datetime_created; //Need datetime ganerator. 
     std::string pin; //Done
-    float balance; //Done
+    double balance; //Done
 public:
     Account();
-    void deposit();
-    void withdraw();
-    void transfer();
-    void display_account();
+    void deposit(double);
+    void withdraw(double);
+    void transfer(double,Account&);
+    void valid_id(std::string);
 };

@@ -13,5 +13,6 @@ private:
     std::unordered_map<std::string,Account> accounts;
 public:
     Account make_account();
+    std::string make_account_id();
     Customer make_customer();
 };

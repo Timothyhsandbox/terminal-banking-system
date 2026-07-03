@@ -8,15 +8,17 @@
 #include <stdexcept>
 #include <cctype>
 
-void deposit();
-void withdraw();
-void transfer();
+void deposit(double);
+void withdraw(double);
+void transfer(double,Account&);
 void display_account();
 std::string get_current_time();
 void valid_pin(std::string);
+std::string get_owner_id();
+void valid_id(std::string);
 std::string get_pin();
-float initial_account_balance();
-void valid_balance(float);
+double initial_account_balance();
+void valid_balance(std::string&);
 
 std::ostream& operator<<(std::ostream &os,const Account &a) {
     os << a.account_number << " " << a.owner_id << " " << a.status << std::endl;
@@ -34,7 +36,7 @@ std::string get_current_time() {
     std::time_t now_c = std::chrono::system_clock::to_time_t(now); //Changes to time_t type
     std::tm local_time = *std::localtime(&now_c);
     std::ostringstream oss;
-    oss << std::put_time(&local_time,"%Y-%n-%d %H:%M:%S");
+    oss << std::put_time(&local_time,"%Y-%m-%d %H:%M:%S");
     return oss.str(); //Return as a std::string
 }
 
@@ -57,7 +59,7 @@ std::string get_owner_id() {
     return id;
 }
 
-void valid_id(std::string id) {
+void Account::valid_id(std::string id) {
     //Check for length
     if(id.length() != 13)
         throw std::invalid_argument("ID must be 13 charactors long.");
@@ -100,25 +102,61 @@ void valid_pin(std::string pin) {
     }
 }
 
-float initial_account_balance() {
-    float balance;
+double initial_account_balance() {
+    std::string balance;
 
     while(true){
         try{
             std::cout << "How much would you like to save with your account: ";
-            std::cin >> balance;
+            std::getline(std::cin,balance);
 
             valid_balance(balance);
             break;
         }
         catch(const std::exception &e){
-            std::cout << e.what() << " Please enter valid account balance.";
+            std::cout << e.what() << " Please enter valid account balance." << std::endl;
         }
+    }
+    return std::stod(balance);
+}
+
+void valid_balance(std::string  &balance) {
+    try{
+        float value = std::stof(balance);//validates input for you.
+
+        if (value < 0) {
+            throw std::invalid_argument("Balance cannot be less than zero.");
+        }
+    }
+    catch(const std::exception&) {
+        throw std::invalid_argument("Invalid balance.");
     }
 }
 
-void valid_balance(float balance) {
-    //balace more than 0
-    if(balance < 0)
-        std::invalid_argument("Balance cannot be less than zero.");
+void Account::deposit(double amount) {
+    if(amount <= 0)
+        throw std::invalid_argument("Amount must be positive.");
+    this->balance += amount;
+}
+
+void Account::transfer(double amount,Account &to_acc) {
+    if(amount <= 0)
+        throw std::invalid_argument("Amount must be positive.");
+
+    if(amount <= this->balance){
+        this->balance -= amount;
+        to_acc.balance += amount;
+    }else{
+        throw std::invalid_argument("Low balance.");
+    }
+
+}
+
+void Account::withdraw(double amount) {
+    if(amount <= 0)
+        throw std::invalid_argument("Amount must be positive.");
+
+    if(amount > this->balance)
+        throw std::invalid_argument("Low balance");
+    this->balance -= amount;
 }
