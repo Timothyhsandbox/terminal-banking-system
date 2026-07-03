@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <chrono> // Track time
+#include <iomanip> //To make stream object
 #include <random>
 #include <stdexcept>
 #include <cctype>
@@ -18,22 +19,23 @@ float initial_account_balance();
 void valid_balance(float);
 
 std::ostream& operator<<(std::ostream &os,const Account &a) {
-
+    os << a.account_number << " " << a.owner_id << " " << a.status << std::endl;
+    os << a.datetime_created << " " << a.pin << " " << a.balance << std::endl;
+    return os;
 }
 
-//Random account maker.
-std::string make_account_number() {
-//Check if is unique with bank first.
-}
+Account::Account()
+    //Still have to add functions(Will let Bank make account number because need to access all the accounts)
+    : account_number("XXXXXXXX"),owner_id(get_owner_id()),status("Active"),datetime_created(get_current_time()),pin(get_pin()),balance(initial_account_balance()) {};
 
-std::string Account::get_current_time() {
+std::string get_current_time() {
 //No corilation is a helper function.
-
-}
-
-Account::Account() {
-    //Still have to add functions
-    : account_number{},owner_id{},status{},datetime_created{},pin{},balance{} {}
+    auto now = std::chrono::system_clock::now(); //Gets time from system
+    std::time_t now_c = std::chrono::system_clock::to_time_t(now); //Changes to time_t type
+    std::tm local_time = *std::localtime(&now_c);
+    std::ostringstream oss;
+    oss << std::put_time(&local_time,"%Y-%n-%d %H:%M:%S");
+    return oss.str(); //Return as a std::string
 }
 
 std::string get_owner_id() {
