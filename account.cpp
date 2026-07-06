@@ -26,9 +26,9 @@ std::ostream& operator<<(std::ostream &os,const Account &a) {
     return os;
 }
 
-Account::Account()
+Account::Account(std::string acc_num)
     //Still have to add functions(Will let Bank make account number because need to access all the accounts)
-    : account_number("XXXXXXXX"),owner_id(get_owner_id()),status("Active"),datetime_created(get_current_time()),pin(get_pin()),balance(initial_account_balance()) {};
+    : account_number(acc_num),owner_id(get_owner_id()),status("Active"),datetime_created(get_current_time()),pin(get_pin()),balance(initial_account_balance()) {};
 
 std::string get_current_time() {
 //No corilation is a helper function.

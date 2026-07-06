@@ -13,7 +13,7 @@ private:
     std::string email;
     std::vector<std::string> account_ids;
 public:
-    Customer();
+    Customer(std::string id);
     std::string get_email() const;
     std::string get_id() const;
     void add_account(std::string);

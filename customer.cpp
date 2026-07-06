@@ -9,8 +9,6 @@ std::string inputfirstname();
 std::string inputmiddlename();
 std::string inputlastname();
 std::string inputemail();
-std::string inputid();
-void valid_id(std::string id);
 void valid_name(std::string str); 
 void add_account(std::string account); 
 
@@ -23,11 +21,11 @@ std::ostream& operator<<(std::ostream &os,const Customer &cus) {
     return os;
 }
 
-Customer::Customer()
+Customer::Customer(std::string id)
     : first_name(inputfirstname()),
       middle_name(inputmiddlename()),
       last_name(inputlastname()),
-      customer_id(inputid()),
+      customer_id(id),
       email(inputemail()),
       account_ids(std::vector<std::string>{}) {
         std::cout << "constructor called." << std::endl;
@@ -109,37 +107,6 @@ std::string inputemail() {
     std::cout << "Enter email: ";
     std::getline(std::cin,email);
     return email;
-}
-
-std::string inputid() {
-    std::string id;
-
-    while(true){
-        try{
-            std::cout << "Enter id: ";
-            std::getline(std::cin,id);
-
-            valid_id(id);
-            break;
-        }
-        catch(const std::exception &e) {
-            std::cout << e.what();
-            std::cout << ".Please enter again.\n";
-        }
-    }
-    return id;
-}
-
-void valid_id(std::string id) {
-    //Check for length
-    if(id.length() != 13)
-        throw std::invalid_argument("ID must be 13 charactors long.");
-    
-    //Check digits
-    for(const char c:id){
-        if(!std::isdigit(c))
-            throw std::invalid_argument("ID must contain only digits.");
-    }
 }
 
 void Customer::add_account(std::string account) {

@@ -14,13 +14,20 @@ int main(){
     std::cout << customer.get_email() << " " << customer.get_id() << std::endl;
     */
 
-    Bank Mikorn;
-    Account acc1;
-    Account acc2;
-    
+    Bank bank;
+    /*
+    Account acc1("1111111111111");
+    Account acc2("2222222222222");
+
     std::cout << acc1 << '\n' << acc2 << std::endl;
     Mikorn.transfer(acc1,acc2,500);
     std::cout << acc1 << '\n' << acc2 << std::endl;
+
+    */
+    bank.make_customer();
+    bank.make_account();
+
+    bank.show();
 
     return 0;
 }

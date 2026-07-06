@@ -10,11 +10,14 @@
 class Bank{
 friend std::ostream& operator<<(std::ostream &os,const Bank &b);
 private:
+    //Stores first = customer-id,second = customer object
     std::unordered_map<std::string,Customer> customers;
+    //Stores first = account_number,second = Account object
     std::unordered_map<std::string,Account> accounts;
+    std::string input_id();
 public:
-    Account make_account();
-    std::string make_account_id();
-    Customer make_customer();
+    void make_account();
+    void make_customer();
     void transfer(Account&,Account&,double);
+    void show();
 };
