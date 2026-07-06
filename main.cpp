@@ -27,7 +27,12 @@ int main(){
     bank.make_customer();
     bank.make_account();
 
+    bank.make_customer();
+    bank.make_account();
+
     bank.show();
+
+    bank.log_accounts();
 
     return 0;
 }

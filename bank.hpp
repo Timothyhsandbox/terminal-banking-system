@@ -20,4 +20,6 @@ public:
     void make_customer();
     void transfer(Account&,Account&,double);
     void show();
+    void log_customers();
+    void log_accounts();
 };

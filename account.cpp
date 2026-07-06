@@ -21,8 +21,7 @@ double initial_account_balance();
 void valid_balance(std::string&);
 
 std::ostream& operator<<(std::ostream &os,const Account &a) {
-    os << a.account_number << " " << a.owner_id << " " << a.status << std::endl;
-    os << a.datetime_created << " " << a.pin << " " << a.balance << std::endl;
+    os << a.account_number << "|" << a.owner_id << "|" << a.balance << std::endl;
     return os;
 }
 
@@ -31,7 +30,6 @@ Account::Account(std::string acc_num)
     : account_number(acc_num),owner_id(get_owner_id()),status("Active"),datetime_created(get_current_time()),pin(get_pin()),balance(initial_account_balance()) {};
 
 std::string get_current_time() {
-//No corilation is a helper function.
     auto now = std::chrono::system_clock::now(); //Gets time from system
     std::time_t now_c = std::chrono::system_clock::to_time_t(now); //Changes to time_t type
     std::tm local_time = *std::localtime(&now_c);

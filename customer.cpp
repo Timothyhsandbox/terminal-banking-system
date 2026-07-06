@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <cctype>
+#include <algorithm>
 
 std::string inputfirstname();
 std::string inputmiddlename();
@@ -13,10 +14,19 @@ void valid_name(std::string str);
 void add_account(std::string account); 
 
 std::ostream& operator<<(std::ostream &os,const Customer &cus) {
-    if(cus.middle_name != "")
-        os << cus.first_name << " " << cus.middle_name << " " << cus.last_name << std::endl;
-    else
-        os << cus.first_name << " " << cus.last_name << std::endl;
+    os << cus.customer_id << "|" 
+       << cus.first_name << "|" 
+        << cus.middle_name << "|" 
+        << cus.last_name << "|"
+        << cus.email << "|";
+
+    bool first{true};
+    for(const auto &elem:cus.account_ids)
+        if(first){
+            std::cout << elem;
+            first = false;
+        }else
+            std::cout << "," << elem;            
 
     return os;
 }
@@ -63,9 +73,6 @@ std::string inputmiddlename() {
         try{
             std::cout << "Enter middlename(If you do not have middlename input -): ";
             std::getline(std::cin,middlename);
-
-            if(middlename == "-")
-                return "";
             
             valid_name(middlename);
             break;

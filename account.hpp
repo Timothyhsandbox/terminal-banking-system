@@ -9,7 +9,7 @@ private:
     std::string account_number; //Still don't have a randomizer.
     std::string owner_id; //Done
     std::string status; //Set default to Active can change to frozen and closed.
-    std::string datetime_created; //Need datetime ganerator. 
+    std::string datetime_created; //done 
     std::string pin; //Done
     double balance; //Done
 public:
