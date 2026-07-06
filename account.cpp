@@ -139,19 +139,6 @@ void Account::deposit(double amount) {
     this->balance += amount;
 }
 
-void Account::transfer(double amount,Account &to_acc) {
-    if(amount <= 0)
-        throw std::invalid_argument("Amount must be positive.");
-
-    if(amount <= this->balance){
-        this->balance -= amount;
-        to_acc.balance += amount;
-    }else{
-        throw std::invalid_argument("Low balance.");
-    }
-
-}
-
 void Account::withdraw(double amount) {
     if(amount <= 0)
         throw std::invalid_argument("Amount must be positive.");
@@ -159,4 +146,8 @@ void Account::withdraw(double amount) {
     if(amount > this->balance)
         throw std::invalid_argument("Low balance");
     this->balance -= amount;
+}
+
+std::string Account::get_account_number() {
+    return this->account_number;
 }

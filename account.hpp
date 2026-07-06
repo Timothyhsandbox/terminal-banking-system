@@ -16,6 +16,5 @@ public:
     Account();
     void deposit(double);
     void withdraw(double);
-    void transfer(double,Account&);
     void valid_id(std::string);
 };

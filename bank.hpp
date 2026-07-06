@@ -3,6 +3,7 @@
 #include "customer.hpp"
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <unordered_map>
 
@@ -15,4 +16,5 @@ public:
     Account make_account();
     std::string make_account_id();
     Customer make_customer();
+    void transfer(Account&,Account&,double);
 };
