@@ -25,9 +25,9 @@ std::ostream& operator<<(std::ostream &os,const Account &a) {
     return os;
 }
 
-Account::Account(std::string acc_num)
+Account::Account(std::string acc_num,std::string id)
     //Still have to add functions(Will let Bank make account number because need to access all the accounts)
-    : account_number(acc_num),owner_id(get_owner_id()),status("Active"),datetime_created(get_current_time()),pin(get_pin()),balance(initial_account_balance()) {};
+    : account_number(acc_num),owner_id(id),status("Active"),datetime_created(get_current_time()),pin(get_pin()),balance(initial_account_balance()) {};
 
 std::string get_current_time() {
     auto now = std::chrono::system_clock::now(); //Gets time from system
@@ -142,7 +142,7 @@ void Account::withdraw(double amount) {
         throw std::invalid_argument("Amount must be positive.");
 
     if(amount > this->balance)
-        throw std::invalid_argument("Low balance");
+        throw std::invalid_argument("Low balance: " + std::to_string(amount));
     this->balance -= amount;
 }
 

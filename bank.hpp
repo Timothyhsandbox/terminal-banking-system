@@ -16,10 +16,14 @@ private:
     std::unordered_map<std::string,Account> accounts;
     std::string input_id();
 public:
+    std::string run();//Used to run program in main
     void make_account();
     void make_customer();
     void transfer(Account&,Account&,double);
+    void deposit(Account&,double);
+    void withdraw(Account&,double);
     void show();
-    void log_customers();
-    void log_accounts();
+    void log_customers();//Haven't implimented yet.
+    void log_accounts();//Done.
+    std::string get_current_time();
 };

@@ -37,9 +37,7 @@ Customer::Customer(std::string id)
       last_name(inputlastname()),
       customer_id(id),
       email(inputemail()),
-      account_ids(std::vector<std::string>{}) {
-        std::cout << "constructor called." << std::endl;
-    };
+      account_ids(std::vector<std::string>{}) {};
 
 std::string Customer::get_email() const {
     return email;
@@ -73,7 +71,10 @@ std::string inputmiddlename() {
         try{
             std::cout << "Enter middlename(If you do not have middlename input -): ";
             std::getline(std::cin,middlename);
-            
+
+            if(middlename == "-")
+                break;
+
             valid_name(middlename);
             break;
         }
@@ -102,17 +103,34 @@ std::string inputlastname() {
 }
 
 void valid_name(std::string str) {
+    if(str == "")
+        throw std::invalid_argument("Haven't entered information.");
     for(const char c:str){
         if(!std::isalpha(c))
             throw std::invalid_argument("Name must contain only characters.");
     }
 }
 
+void valid_email(std::string email) {
+    if(email == "")
+        throw std::invalid_argument("Haven't entered information");
+}
+
 std::string inputemail() {
     std::string email;
 
-    std::cout << "Enter email: ";
-    std::getline(std::cin,email);
+    while(true){
+        try{
+            std::cout << "Enter email: ";
+            std::getline(std::cin,email);
+
+            valid_email(email);
+            break;
+        }
+        catch(const std::exception& e){
+            std::cout << e.what() << " please enter email again." << std::endl;
+        }
+    }
     return email;
 }
 

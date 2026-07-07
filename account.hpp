@@ -13,7 +13,7 @@ private:
     std::string pin; //Done
     double balance; //Done
 public:
-    Account(std::string);
+    Account(std::string,std::string);
     void deposit(double);
     void withdraw(double);
     void valid_id(std::string);
