@@ -16,7 +16,7 @@ private:
     std::unordered_map<std::string,Account> accounts;
     std::string input_id();
 public:
-    std::string run();//Used to run program in main
+    void run();//Used to run program in main
     void make_account();
     void make_customer();
     void transfer(Account&,Account&,double);

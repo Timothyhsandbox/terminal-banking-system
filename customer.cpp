@@ -23,10 +23,10 @@ std::ostream& operator<<(std::ostream &os,const Customer &cus) {
     bool first{true};
     for(const auto &elem:cus.account_ids)
         if(first){
-            std::cout << elem;
+            os << elem;
             first = false;
         }else
-            std::cout << "," << elem;            
+            os << "," << elem;            
 
     return os;
 }

@@ -20,7 +20,7 @@ void valid_id(std::string id);
 std::string get_current_time();
 
 //====================================================================================================//
-std::string run() {
+void Bank::run() {
     std::cout << "========== BANK MANAGEMENT SYSTEM ==========" << std::endl;
 }
 //====================================================================================================//
@@ -49,6 +49,9 @@ void Bank::make_account() {
     
     //Construct and make Account objects into unordered map
     accounts.emplace(acc_id,Account(acc_id,id));
+
+    //Add to customers accounts vector
+    customers.at(id).add_account(acc_id);
 }
 
 std::string make_account_id() {
@@ -61,18 +64,22 @@ std::string make_account_id() {
 }
 
 void Bank::log_accounts() {
-
     std::ofstream file{"account.txt",std::ios::trunc};
     if(!file)
         throw std::runtime_error("Could not open account.txt");
     else   
         for(const auto& [acc_id,acc_obj]:accounts)
-            file << acc_obj << std::endl;
+            file << acc_obj;
 }
 
 void Bank::make_customer() {
     std::cout << "========== CUSTOMER INFORMATION ==========" << std::endl;
     std::string id = input_id();
+
+    //Check if customer already in customers
+    if (customers.find(id) != customers.end())
+        throw std::invalid_argument("Customer already exists.");
+
     customers.emplace(id,Customer(id));
 }
 
