@@ -19,7 +19,7 @@ std::ostream& operator<<(std::ostream &os,const Customer &cus) {
        << cus.first_name << "|" 
         << cus.middle_name << "|" 
         << cus.last_name << "|"
-        << cus.email;
+        << cus.email << "|";
 
     bool first{true};
     for(const auto &elem:cus.account_ids)
