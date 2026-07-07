@@ -16,7 +16,10 @@ private:
     std::unordered_map<std::string,Account> accounts;
     std::string input_id();
 public:
-    void run();//Used to run program in main
+    void run();
+    std::string get_current_time();
+    void read_customers();//Not implimented yet
+    void read_accounts();//Not implimented yet
     void make_account();
     void make_customer();
     void transfer(Account&,Account&,double);
@@ -25,5 +28,6 @@ public:
     void show();
     void log_customers();//Haven't implimented yet.
     void log_accounts();//Done.
-    std::string get_current_time();
+    void view_customer();
+    void regestered_id(std::string id);
 };

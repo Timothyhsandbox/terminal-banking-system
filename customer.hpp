@@ -14,7 +14,11 @@ private:
     std::vector<std::string> account_ids;
 public:
     Customer(std::string id);
+    std::string get_firstname() const;
+    std::string get_middlename() const;
+    std::string get_lastname() const;
     std::string get_email() const;
     std::string get_id() const;
+    std::vector<std::string> get_accounts() const;
     void add_account(std::string);
 };

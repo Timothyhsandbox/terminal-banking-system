@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include <stdexcept>
 #include <cctype>
 #include <algorithm>
@@ -18,7 +19,7 @@ std::ostream& operator<<(std::ostream &os,const Customer &cus) {
        << cus.first_name << "|" 
         << cus.middle_name << "|" 
         << cus.last_name << "|"
-        << cus.email << "|";
+        << cus.email;
 
     bool first{true};
     for(const auto &elem:cus.account_ids)
@@ -39,6 +40,18 @@ Customer::Customer(std::string id)
       email(inputemail()),
       account_ids(std::vector<std::string>{}) {};
 
+std::string Customer::get_firstname() const {
+    return first_name;
+}
+
+std::string Customer::get_middlename() const {
+    return middle_name;
+}
+
+std::string Customer::get_lastname() const {
+    return last_name;
+}
+
 std::string Customer::get_email() const {
     return email;
 }
@@ -47,18 +60,22 @@ std::string Customer::get_id() const {
     return customer_id;
 }
 
+std::vector<std::string> Customer::get_accounts() const {
+    return account_ids;
+}
+
 std::string inputfirstname() {
     std::string firstname;
 
     while(true){
         try{
-            std::cout << "Enter Firstname: ";
+            std::cout << std::setw(12) << "First name :";
             std::getline(std::cin,firstname);
             valid_name(firstname);
             break;
         }
         catch(const std::exception &e){
-            std::cout << e.what() << "Enter Firstname again." << std::endl;
+            std::cout << "[ERROR]" << e.what() << " enter first name again." << std::endl;
         }
     }
     return firstname;
@@ -69,7 +86,7 @@ std::string inputmiddlename() {
 
     while(true){
         try{
-            std::cout << "Enter middlename(If you do not have middlename input -): ";
+            std::cout << std::setw(12) << "Middle Name(or -): ";
             std::getline(std::cin,middlename);
 
             if(middlename == "-")
@@ -79,7 +96,7 @@ std::string inputmiddlename() {
             break;
         }
         catch(const std::exception &e) {
-            std::cout << e.what() << "Enter middle name again." << std::endl;
+            std::cout << "[ERROR]" << e.what() << " enter middle name again." << std::endl;
         }
     }
     return middlename;
@@ -90,13 +107,13 @@ std::string inputlastname() {
 
     while(true){
         try{
-            std::cout << "Enter Lastname: ";
+            std::cout << "Last Name: ";
             std::getline(std::cin,lastname);
             valid_name(lastname);
             break;
         }
         catch(const std::exception &e) {
-            std::cout << e.what() << "Enter lastname again." << std::endl;
+            std::cout << "[ERROR]" << e.what() << " enter lastname again." << std::endl;
         }
     }
     return lastname;
@@ -104,10 +121,10 @@ std::string inputlastname() {
 
 void valid_name(std::string str) {
     if(str == "")
-        throw std::invalid_argument("Haven't entered information.");
+        throw std::invalid_argument("Haven't entered information");
     for(const char c:str){
         if(!std::isalpha(c))
-            throw std::invalid_argument("Name must contain only characters.");
+            throw std::invalid_argument("Name must contain only characters");
     }
 }
 
@@ -121,7 +138,7 @@ std::string inputemail() {
 
     while(true){
         try{
-            std::cout << "Enter email: ";
+            std::cout << "Email: ";
             std::getline(std::cin,email);
 
             valid_email(email);
@@ -137,3 +154,4 @@ std::string inputemail() {
 void Customer::add_account(std::string account) {
     account_ids.push_back(account);
 }
+

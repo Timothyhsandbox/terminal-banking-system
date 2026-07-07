@@ -43,15 +43,14 @@ std::string get_owner_id() {
 
     while(true){
         try{
-            std::cout << "Enter id: ";
+            std::cout << std::setw(12) << "National ID: ";
             std::getline(std::cin,id);
 
             valid_id(id);
             break;
         }
         catch(const std::exception &e) {
-            std::cout << e.what();
-            std::cout << ".Please enter again.\n";
+            std::cout << "[ERROR]" << e.what() << "please enter valid id.\n";
         }
     }
     return id;
@@ -60,12 +59,12 @@ std::string get_owner_id() {
 void Account::valid_id(std::string id) {
     //Check for length
     if(id.length() != 13)
-        throw std::invalid_argument("ID must be 13 charactors long.");
+        throw std::invalid_argument("ID must be 13 charactors long ");
     
     //Check digits
     for(const char c:id){
         if(!std::isdigit(c))
-            throw std::invalid_argument("ID must contain only digits.");
+            throw std::invalid_argument("ID must contain only digits ");
     }
 }
 
@@ -81,8 +80,7 @@ std::string get_pin() {
             break;
         }
         catch(const std::exception &e){
-            std::cout << e.what();
-            std::cout << "Enter PIN again.\n";
+            std::cout << "[ERROR]" << e.what() << "enter PIN again.\n";
         }
         
     }
@@ -92,11 +90,11 @@ std::string get_pin() {
 void valid_pin(std::string pin) {
     //Check length to be 4.
     if(pin.length() != 4)
-        throw std::invalid_argument("Pin must be 4 charactors long.");
+        throw std::invalid_argument("Pin must be 4 charactors long ");
 
     for(const char c:pin){
         if(!std::isdigit(c))
-            throw std::invalid_argument("Pin must contain only digits.");
+            throw std::invalid_argument("Pin must contain only digits ");
     }
 }
 
@@ -105,14 +103,14 @@ double initial_account_balance() {
 
     while(true){
         try{
-            std::cout << "How much would you like to save with your account: ";
+            std::cout << "Initial balance: ";
             std::getline(std::cin,balance);
 
             valid_balance(balance);
             break;
         }
         catch(const std::exception &e){
-            std::cout << e.what() << " Please enter valid account balance." << std::endl;
+            std::cout << e.what() << " please enter valid account balance." << std::endl;
         }
     }
     return std::stod(balance);
@@ -123,23 +121,23 @@ void valid_balance(std::string  &balance) {
         float value = std::stof(balance);//validates input for you.
 
         if (value < 0) {
-            throw std::invalid_argument("Balance cannot be less than zero.");
+            throw std::invalid_argument("Balance cannot be less than zero ");
         }
     }
     catch(const std::exception&) {
-        throw std::invalid_argument("Invalid balance.");
+        throw std::invalid_argument("Invalid balance ");
     }
 }
 
 void Account::deposit(double amount) {
     if(amount <= 0)
-        throw std::invalid_argument("Amount must be positive.");
+        throw std::invalid_argument("Amount must be positive ");
     this->balance += amount;
 }
 
 void Account::withdraw(double amount) {
     if(amount <= 0)
-        throw std::invalid_argument("Amount must be positive.");
+        throw std::invalid_argument("Amount must be positive ");
 
     if(amount > this->balance)
         throw std::invalid_argument("Low balance: " + std::to_string(amount));

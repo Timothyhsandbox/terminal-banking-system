@@ -10,6 +10,7 @@
 #include <random>
 #include <stdexcept>
 #include <chrono>
+#include <limits>
 
 void log_transfer(Account &from,Account &to,double amount);
 void log_deposit(Account&,double);
@@ -18,10 +19,117 @@ std::string make_account_id();
 std::string input_id();
 void valid_id(std::string id);
 std::string get_current_time();
+void view_customer();
+
 
 //====================================================================================================//
 void Bank::run() {
-    std::cout << "========== BANK MANAGEMENT SYSTEM ==========" << std::endl;
+    while(true){
+        std::cout << std::string(52,'=') << std::endl << std::endl;
+        std::cout << "          HINES BANK MANAGEMENT SYSTEM" <<std::endl << std::endl;
+        std::cout << std::string(52,'=') << std::endl;
+        std::cout << std::setw(26) << std::left << "[ Customer Management ]" << "|"<< std::setw(26) << "[ Account Management ]" << std::endl;
+        std::cout << std::setw(26) << std::left << "1. Create Customer" << "|"<< std::setw(26) << "5. Create Account" << std::endl;
+        std::cout << std::setw(26) << std::left << "2. View Customer" << "|"<< std::setw(26) << "6. View Account" << std::endl;
+        std::cout << std::setw(26) << std::left << "3. View All Customers" << "|"<< std::setw(26) << "7. View All Accounts" << std::endl;
+        std::cout << std::setw(26) << std::left << "4. Remove Customer" << "|"<< std::setw(26) << "8. Close Account" << std::endl ;
+        std::cout << std::string(52,'-') << std::endl;
+        std::cout << std::setw(26) << std::left << "[ Transactions ]" << "|"<< std::setw(26) << "[ Reports ]" << std::endl;
+        std::cout << std::setw(26) << std::left << "9.  Deposit" << "|"<< std::setw(26) << "12. View Customer Transactions" << std::endl;
+        std::cout << std::setw(26) << std::left << "10. Withdraw" << "|"<< std::setw(26) << "13. View All Transactions" << std::endl;
+        std::cout << std::setw(26) << std::left << "11. Transfer" << "|"<< std::setw(26) << std::endl;
+        std::cout << std::string(52,'-') << std::endl;
+        std::cout << "0. Exit\n";
+        std::cout << std::string(52,'=') << std::endl;
+        
+        int fn;
+        std::cout << "Function: ";
+        std::cin >> fn;
+
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        bool terminate{false};
+        switch (fn){
+            case 0:
+            {
+                //Log data to files:
+                this->log_accounts();
+                this->log_customers();
+                terminate = true;
+                std::cout << "Hines Bank closing..." << std::endl;
+                break;
+            }
+            case 1:   
+                //input personal information into bank data base.
+                this->make_customer();
+                break;
+            case 2:
+                //Enter ID to see personal data.
+                this->view_customer();
+                break;
+            case 5:
+                this->make_account();
+                //Need to catch exception for not a verified person.
+                break;
+            default:
+                std::cout << "[ERROR] Invalid call enter again." << std::endl;
+                break;
+        } 
+
+        if(terminate)
+            break;
+
+    }
+}
+
+//=====================================Interface Helper Functions======================================//
+void Bank::view_customer() {
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+    std::cout << "             VIEW CUSTOMER INFORMATION" <<std::endl << std::endl;
+    std::cout << std::string(52,'=') << std::endl;
+
+    char action{};
+    std::string id{};
+    while(true){
+        try{
+            id = input_id();
+            regestered_id(id);
+            break;
+        }
+        catch(const std::exception &e){
+            std::cout << "[ERROR] " << e.what() << " (enter e to exit or n to re-enter): ";
+            std::cin >> action;
+
+            if(action == 'e')
+                break;
+            else if(action == 'n')
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+    }
+    if(action != 'e'){
+        //Find customer in unordered map.
+        auto it = customers.find(id);
+        Customer &c = it->second;
+
+        std::cout << "First name: " << c.get_firstname() << std::endl;
+        std::cout << "Middle name: " << c.get_middlename() << std::endl;
+        std::cout << "Last name: " << c.get_lastname() << std::endl;
+        std::cout << "Email: " << c.get_email() << '\n' << std::endl;
+
+        std::cout << "Accounts" << std::endl;
+        std::cout << std::string(52,'-') << std::endl;
+        for(const std::string &elem: c.get_accounts())
+            std::cout << elem << std::endl;
+        std::cout << std::string(52,'=') << std::endl;
+    }else{
+        std::cout << "Returning to main menu..." << std::endl;
+    }
+
+}
+
+void Bank::regestered_id(std::string id) {
+    if(customers.find(id) == customers.end())
+        throw std::invalid_argument("Customer hasn't regestered");
 }
 //====================================================================================================//
 
@@ -73,7 +181,10 @@ void Bank::log_accounts() {
 }
 
 void Bank::make_customer() {
-    std::cout << "========== CUSTOMER INFORMATION ==========" << std::endl;
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+    std::cout << "          HINES BANK MANAGEMENT SYSTEM" <<std::endl << std::endl;
+    std::cout << std::string(52,'=') << std::endl;
+
     std::string id = input_id();
 
     //Check if customer already in customers
@@ -88,15 +199,14 @@ std::string Bank::input_id() {
 
     while(true){
         try{
-            std::cout << "Enter id: ";
+            std::cout << std::setw(12) << "National ID: ";
             std::getline(std::cin,id);
 
             valid_id(id);
             break;
         }
         catch(const std::exception &e) {
-            std::cout << e.what();
-            std::cout << ".Please enter again.\n";
+            std::cout << e.what() << " please enter again.\n";
         }
     }
     return id;
@@ -105,12 +215,12 @@ std::string Bank::input_id() {
 void valid_id(std::string id) {
     //Check for length
     if(id.length() != 13)
-        throw std::invalid_argument("ID must be 13 charactors long.");
+        throw std::invalid_argument("ID must be 13 charactors long ");
     
     //Check digits
     for(const char c:id){
         if(!std::isdigit(c))
-            throw std::invalid_argument("ID must contain only digits.");
+            throw std::invalid_argument("ID must contain only digits ");
     }
 }
 
@@ -153,7 +263,8 @@ void deposit(Account& acc,double amount) {
                     condition = false;
                 }else
                     throw std::invalid_argument("invalid input");
-            break;
+            else
+                break;
         }
         catch(const std::exception& e){
             std::cout << e.what() << "(e to exit,n new withdraw amount.): ";
@@ -182,12 +293,13 @@ void withdraw(Account& acc,double amount) {
                 if(action == 'e')
                     break;
                 else if(action == 'n'){
-                    std::cout << "Enter new withdraw amount: ";
+                    std::cout << "New withdraw amount: ";
                     std::cin >> amount;
                     condition = false;
                 }else
                     throw std::invalid_argument("invalid input");
-            break;
+            else
+                break;
         }
         catch(const std::exception& e){
             std::cout << e.what() << "(e to exit,n new withdraw amount.): ";
