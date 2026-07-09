@@ -28,7 +28,7 @@ std::string input_acc_id();
 void valid_acc_id(std::string);
 double input_amount();
 void valid_amount(double);
-
+std::vector<std::string> split(const std::string&,char);
 //====================================================================================================//
 void Bank::run() {
     bool terminate{false};
@@ -131,6 +131,16 @@ void Bank::run() {
             case 11:
             {
                 this->transfer();
+                break;
+            }
+            case 12:
+            {
+                this->view_customer_transactions();
+                break;
+            }
+            case 13:
+            {
+                this->view_all_transactions();
                 break;
             }
             default:
@@ -390,6 +400,92 @@ void Bank::close_account() {
         accounts.erase(it);
     }
 }
+
+void Bank::view_customer_transactions() {
+    std::cout << std::string(64,'=') << std::endl << std::endl;
+    std::cout << std::string(20,' ') << "ACCOUNT TRANSACTION HISTORY" << std::endl << std::endl;
+    std::cout << std::string(64,'=') << std::endl;
+
+    std::fstream file{"transaction.txt",std::ios::in};
+    //Check for impty file.
+    if (file.peek() == std::ifstream::traits_type::eof()) {
+        std::cout << "No transactions found.\n";
+        return;
+    }   
+
+    char action{};
+    std::string acc_id{};
+    std::unordered_map<std::string,Account>::iterator it;
+    while(true){
+        try{
+            acc_id = input_acc_id();
+            it = regestered_account(acc_id);
+            break;
+        }
+        catch(const std::exception &e){
+            std::cout << "[ERROR] " << e.what() << " (enter e to exit or n to re-enter): ";
+            std::cin >> action;
+
+            if(action == 'e')
+                break;
+            else if(action == 'n')
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+    }
+
+    std::cout << std::left << std::setw(22) << "Date & Time" << std::setw(12) << "Type" << std::setw(10) << "From" << std::setw(10) << "To" << std::setw(10) << "Amount" << '\n';
+    std::cout << std::string(64,'-') << std::endl;
+
+    std::string line;
+    std::vector<std::string> data;
+
+
+    if(file){
+        while(!file.eof()){
+            std::getline(file,line);
+            data = split(line,'|');
+            //date_time,Type,From,to,amount
+            if(data.size() == 5)
+                if(data[2] == acc_id || data[3] == acc_id)
+                    std::cout << std::left << std::setw(22) << data[0] << std::setw(12) << data[1] << std::setw(10) << data[2] << std::setw(10) << data[3] << std::setw(10) << data[4] << '\n';
+            else
+                break;
+        }
+    }
+    std::cout << std::string(64,'=') << std::endl;
+}
+
+void Bank::view_all_transactions() {
+    std::cout << std::string(64,'=') << std::endl << std::endl;
+    std::cout << std::string(24,' ') << "TRANSACTION HISTORY" << std::endl << std::endl;
+    std::cout << std::string(64,'=') << std::endl;
+    std::cout << std::left << std::setw(22) << "Date & Time" << std::setw(12) << "Type" << std::setw(10) << "From" << std::setw(10) << "To" << std::setw(10) << "Amount" << '\n';
+    std::cout << std::string(64,'-') << std::endl;
+
+    std::fstream file{"transaction.txt",std::ios::in};
+    std::string line;
+    std::vector<std::string> data;
+
+    //Check for impty file.
+    if (file.peek() == std::ifstream::traits_type::eof()) {
+        std::cout << "No transactions found.\n";
+        return;
+    }   
+
+    if(file){
+        while(!file.eof()){
+            std::getline(file,line);
+            data = split(line,'|');
+            if(data.size() == 5)
+                std::cout << std::left << std::setw(22) << data[0] << std::setw(12) << data[1] << std::setw(10) << data[2] << std::setw(10) << data[3] << std::setw(10) << data[4] << '\n';
+            else
+                break;
+        }
+    }
+
+    std::cout << std::string(64,'=') << std::endl;
+}
+
 //====================================================================================================//
 
 std::string Bank::get_current_time() {
@@ -549,7 +645,7 @@ void log_transfer(Account &from,Account &to,double amount) {
     if(!file)
         throw std::runtime_error("Could not open transaction.txt");
     else   
-        file << get_current_time() << "|" << "TRASFER" << "|" << from.get_account_number() << "|" << to.get_account_number() << "|" << amount << std::endl;
+        file << get_current_time() << "|" << "TRANSFER" << "|" << from.get_account_number() << "|" << to.get_account_number() << "|" << amount << std::endl;
 }
 
 void Bank::deposit() {
@@ -671,4 +767,16 @@ double input_amount() {
     }else{
         return 0;
     }
+}
+
+std::vector<std::string> split(const std::string& str,char spliter) {
+    std::vector<std::string> ans;
+    std::stringstream ss(str);
+    std::string splited_elem;
+
+    while(std::getline(ss,splited_elem,spliter)){
+        ans.push_back(splited_elem);
+    }
+
+    return ans;
 }

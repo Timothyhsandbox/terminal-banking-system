@@ -38,4 +38,6 @@ public:
     void close_account();
     void validate_account(std::string);
     std::string input_acc_id();
+    void view_customer_transactions();
+    void view_all_transactions();
 };
