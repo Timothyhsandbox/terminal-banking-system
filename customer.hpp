@@ -19,6 +19,6 @@ public:
     std::string get_lastname() const;
     std::string get_email() const;
     std::string get_id() const;
-    std::vector<std::string> get_accounts() const;
+    std::vector<std::string>& get_accounts();
     void add_account(std::string);
 };

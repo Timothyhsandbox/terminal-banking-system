@@ -23,7 +23,7 @@ public:
     void make_account();
     void make_customer();
     void transfer(Account&,Account&,double);
-    void deposit(Account&,double);
+    void deposit();
     void withdraw(Account&,double);
     void show();
     void log_customers();//Haven't implimented yet.
@@ -35,4 +35,7 @@ public:
     void view_account();
     std::unordered_map<std::string,Account>::iterator regestered_account(std::string);
     void view_all_accounts();
+    void close_account();
+    void validate_account(std::string);
+    std::string input_acc_id();
 };

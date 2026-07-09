@@ -20,4 +20,6 @@ public:
     std::string get_account_number();
     std::string get_account_balance();
     std::string get_account_id();
+    std::string get_account_pin();
+    double get_account_balance_as_double();
 };

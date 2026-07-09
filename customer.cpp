@@ -60,7 +60,7 @@ std::string Customer::get_id() const {
     return customer_id;
 }
 
-std::vector<std::string> Customer::get_accounts() const {
+std::vector<std::string>& Customer::get_accounts() {
     return account_ids;
 }
 

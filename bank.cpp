@@ -13,6 +13,7 @@
 #include <limits>
 #include <cctype>
 #include <sstream>
+#include <algorithm>
 
 std::string get_current_time();
 void log_transfer(Account &from,Account &to,double amount);
@@ -25,9 +26,12 @@ void view_customer();
 void view_all_customers();
 std::string input_acc_id();
 void valid_acc_id(std::string);
+double input_amount();
+void valid_amount(double);
 
 //====================================================================================================//
 void Bank::run() {
+    bool terminate{false};
     while(true){
         std::cout << std::string(52,'=') << std::endl << std::endl;
         std::cout << "           HINES BANK MANAGEMENT SYSTEM" <<std::endl << std::endl;
@@ -48,12 +52,17 @@ void Bank::run() {
         
         int fn;
         std::cout << "Function: ";
-        std::cin >> fn;
+        if (!(std::cin >> fn)){
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            std::cout << "[ERROR] Invalid input.\n";
+            continue;
+        }
 
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-        bool terminate{false};
-        switch (fn){
+        switch(fn){
             case 0:
             {
                 //Log data to files:
@@ -102,6 +111,16 @@ void Bank::run() {
             case 7:
             {
                 this->view_all_accounts();
+                break;
+            }
+            case 8:
+            {
+                this->close_account();
+                break;
+            }
+            case 9:
+            {
+                this->deposit();
                 break;
             }
             default:
@@ -174,7 +193,7 @@ void Bank::view_all_customers() {
     std::cout << std::left << std::setw(16) << "National ID" << std::setw(22) << "Name" << "Accounts" << std::endl;
     std::cout << std::string(52,'-') << std::endl << std::endl;
 
-    for(const auto& [id,customer]:customers){
+    for(auto& [id,customer]:customers){
         std::string name;
         if(customer.get_middlename() == "-"){
             name = customer.get_firstname() + " " + customer.get_lastname();
@@ -255,6 +274,7 @@ void Bank::view_account() {
     }
     if(action != 'e'){
         std::cout << "Owner ID: " << it->second.get_account_id() << std::endl;
+        std::cout << "PIN: " << it->second.get_account_pin() << std::endl;
         std::cout << "Amount(THB): " << it->second.get_account_balance() << std::endl << std::endl;
         std::cout << std::string(52,'=') << std::endl;
     }
@@ -267,7 +287,7 @@ std::unordered_map<std::string,Account>::iterator Bank::regestered_account(std::
 
     return it;
 }
-std::string input_acc_id() {
+std::string Bank::input_acc_id() {
     std::string acc_id;
     while(true){
         try{
@@ -300,7 +320,10 @@ void Bank::view_all_accounts() {
     std::cout << std::left << std::setw(15) << "Account No."<< std::setw(18) << "Owner ID"<< std::setw(25) << "Owner Name"<< std::setw(15) <<  "Balance (THB)" << std::endl;
     std::cout << std::string(73,'-') << std::endl; 
 
+    double total_balance{0};
     for(auto& [acc_id,acc_obj]:accounts){
+        total_balance += acc_obj.get_account_balance_as_double();
+
         std::ostringstream owner_name;
         if(customers.at(acc_obj.get_account_id()).get_middlename() != "-"){
             owner_name << customers.at(acc_obj.get_account_id()).get_firstname() << " " <<  customers.at(acc_obj.get_account_id()).get_middlename() << " " << customers.at(acc_obj.get_account_id()).get_lastname();
@@ -311,10 +334,52 @@ void Bank::view_all_accounts() {
         }
     }
 
-    std::cout << std::string(73,'=') << std::endl << std::endl;
+    std::cout << "\nTotal Accounts: " << accounts.size() << std::endl;
+    std::cout << "Total amount: " << std::fixed << std::setprecision(2) << total_balance << std::endl;
+    std::cout << std::string(73,'=') << std::endl;
 
 }
 
+void Bank::close_account() {
+    //Remove from customer first then remove from unordered map.
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+    std::cout << "                  ACCOUNT REMOVAL" <<std::endl << std::endl;
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+
+    char action{};
+    std::string acc_id{};
+    std::unordered_map<std::string,Account>::iterator it;
+    while(true){
+        try{
+            acc_id = input_acc_id();
+            it = regestered_account(acc_id);
+            break;
+        }
+        catch(const std::exception &e){
+            std::cout << "[ERROR] " << e.what() << " (enter e to exit or n to re-enter): ";
+            std::cin >> action;
+
+            if(action == 'e')
+                break;
+            else if(action == 'n')
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+    }
+    if(action != 'e'){
+        //accounts vector passed be reference.
+        auto& cus_acc = customers.at(it->second.get_account_id()).get_accounts();
+
+        //Find value in vector
+        auto vec_it = std::find(cus_acc.begin(),cus_acc.end(),acc_id);
+        std::cout << "Removing account from customer..." << std::endl;
+        cus_acc.erase(vec_it);
+
+        //Find value in unordered map
+        auto it = accounts.find(acc_id);
+        std::cout << "Removeing account from data base..." << std::endl;
+        accounts.erase(it);
+    }
+}
 //====================================================================================================//
 
 std::string Bank::get_current_time() {
@@ -435,31 +500,39 @@ void log_transfer(Account &from,Account &to,double amount) {
         file << get_current_time() << "|" << "TRASFER" << "|" << from.get_account_number() << "|" << to.get_account_number() << "|" << amount << std::endl;
 }
 
-void deposit(Account& acc,double amount) {
-    bool condition{false};
+void Bank::deposit() {
     char action{};
     while(true){
         try{
-            acc.deposit(amount);
+            //Input valild id
+            std::string acc_id = input_acc_id();
+            validate_account(acc_id);
+            auto& acc = accounts.at(acc_id);
 
-            if(condition)
-                if(action == 'e')
-                    break;
-                else if(action == 'n'){
-                    std::cout << "Enter new deposit amount: ";
-                    std::cin >> amount;
-                    condition = false;
-                }else
-                    throw std::invalid_argument("invalid input");
-            else
-                break;
+            //Input valid amount.
+            double amount = input_amount();
+            acc.deposit(amount);
+            log_deposit(acc,amount);
+            break;
         }
-        catch(const std::exception& e){
-            std::cout << e.what() << "(e to exit,n new withdraw amount.): ";
+        catch(const std::exception &e){
+            std::cout << "[ERROR] " << e.what() << " (enter e to exit or n to re-enter): ";
             std::cin >> action;
-            condition = true;
+
+            if(action == 'e')
+                break;
+            else if(action == 'n')
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
+    if(action != 'e'){
+        std::cout << "transaction completed." << std::endl;
+    }
+}
+
+void Bank::validate_account(std::string acc_id) {
+    if(accounts.find(acc_id) == accounts.end())
+        throw std::invalid_argument("Account not registured.");
 }
 
 void log_deposit(Account& acc,double amount) {
@@ -506,17 +579,41 @@ void log_withdraw(Account& acc,double amount) {
         file << get_current_time() << "|" << "WITHDRAW" << "|" << acc.get_account_number() << "|-|" << amount << std::endl;
 }
 
-//Testing functions=================================================
-void Bank::show() {
-    std::cout << std::string(39,'=') << std::endl;
+double input_amount() {
+    double amount;
+    char action;
+    while(true){
+        try{
+            std::cout << "Enter amount: ";
+            if (!(std::cin >> amount)) {
+                std::cin.clear();   // clear fail state
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                throw std::invalid_argument("Invalid amount.");
+            }
+            //valid_amount(amount);
+            break;
+        }catch(const std::exception& e){
+            std::cout << "[ERROR] " << e.what() << " (enter e to exit or n to re-enter): ";
+            std::cin >> action;
 
-    for(const auto &acc: accounts){
-        std::cout << acc.first << '\n' << acc.second << std::endl;
+            if(action == 'e')
+                break;
+            else if(action == 'n')
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
     }
-
-    std::cout << std::string(39,'=') << std::endl;
-
-    for(const auto &cus: customers){
-        std::cout << cus.first << '\n' << cus.second << std::endl;
+    if(action != 'e'){
+        return amount;
+    }else{
+        return 0;
     }
+}
+
+void valid_amount(double amount) {
+    if(amount < 0)
+        throw std::invalid_argument("Amount can't be negative.");
+    
+    for(const char elem:std::to_string(amount))
+        if(!std::isdigit(elem))
+            throw std::invalid_argument("Invalid value.");
 }

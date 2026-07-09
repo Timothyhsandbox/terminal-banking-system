@@ -158,3 +158,11 @@ std::string Account::get_account_balance() {
 std::string Account::get_account_id() {
     return owner_id;
 }
+
+double Account::get_account_balance_as_double() {
+    return balance;
+}
+
+std::string Account::get_account_pin() {
+    return pin;
+}
