@@ -22,7 +22,7 @@ public:
     void read_accounts();//Not implimented yet
     void make_account();
     void make_customer();
-    void transfer(Account&,Account&,double);
+    void transfer();
     void deposit();
     void withdraw();
     void show();

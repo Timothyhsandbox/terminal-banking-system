@@ -128,6 +128,11 @@ void Bank::run() {
                 this->withdraw();
                 break;
             }
+            case 11:
+            {
+                this->transfer();
+                break;
+            }
             default:
                 std::cout << "[ERROR] Invalid call enter again." << std::endl;
                 break;
@@ -491,10 +496,52 @@ void Bank::log_customers() {
             file << cus_obj << std::endl;
 }
 
-void Bank::transfer(Account &from,Account &to,double balance) {
-    from.withdraw(balance);
-    to.deposit(balance);
-    log_transfer(from,to,balance);
+void Bank::transfer() {
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+    std::cout << "                     TRANSFER" <<std::endl << std::endl;
+    std::cout << std::string(52,'=') << std::endl;
+
+    char action{};
+    while(true){
+        try{
+            //Input valid amount.
+            double amount = input_amount();
+
+            std::cin.clear();   // clear fail state
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            //Input valild id
+            std::string acc1_id = input_acc_id();
+            validate_account(acc1_id);
+            auto& acc1 = accounts.at(acc1_id);
+
+            acc1.withdraw(amount);
+
+            //Input valild id
+            std::string acc2_id = input_acc_id();
+            validate_account(acc2_id);
+            auto& acc2 = accounts.at(acc2_id);
+
+            acc2.deposit(amount);
+
+            log_transfer(acc1,acc2,amount);
+            break;
+        }
+        catch(const std::exception &e){
+            std::cout << "[ERROR] " << e.what() << " (enter e to exit or n to re-enter): ";
+            std::cin >> action;
+
+            if(action == 'e')
+                break;
+            else if(action == 'n')
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+    }
+    if(action != 'e'){
+        std::cout << "transaction completed." << std::endl;
+    }
+    std::cout << std::string(52,'=') << std::endl;
+
 }
 
 void log_transfer(Account &from,Account &to,double amount) {
@@ -506,6 +553,10 @@ void log_transfer(Account &from,Account &to,double amount) {
 }
 
 void Bank::deposit() {
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+    std::cout << "                        DEPOSIT" <<std::endl << std::endl;
+    std::cout << std::string(52,'=') << std::endl;
+
     char action{};
     while(true){
         try{
@@ -533,6 +584,8 @@ void Bank::deposit() {
     if(action != 'e'){
         std::cout << "transaction completed." << std::endl;
     }
+    std::cout << std::string(52,'=') << std::endl;
+
 }
 
 void Bank::validate_account(std::string acc_id) {
@@ -549,6 +602,9 @@ void log_deposit(Account& acc,double amount) {
 }
 
 void Bank::withdraw() {
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+    std::cout << "                       WITHDRAW" <<std::endl << std::endl;
+    std::cout << std::string(52,'=') << std::endl;
     char action{};
     while(true){
         try{
@@ -576,6 +632,7 @@ void Bank::withdraw() {
     if(action != 'e'){
         std::cout << "transaction completed." << std::endl;
     }
+    std::cout << std::string(52,'=') << std::endl;
 }
 
 void log_withdraw(Account& acc,double amount) {
@@ -614,13 +671,4 @@ double input_amount() {
     }else{
         return 0;
     }
-}
-
-void valid_amount(double amount) {
-    if(amount < 0)
-        throw std::invalid_argument("Amount can't be negative.");
-    
-    for(const char elem:std::to_string(amount))
-        if(!std::isdigit(elem))
-            throw std::invalid_argument("Invalid value.");
 }
