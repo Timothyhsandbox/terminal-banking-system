@@ -24,7 +24,7 @@ public:
     void make_customer();
     void transfer(Account&,Account&,double);
     void deposit();
-    void withdraw(Account&,double);
+    void withdraw();
     void show();
     void log_customers();//Haven't implimented yet.
     void log_accounts();//Done.

@@ -141,7 +141,7 @@ void Account::withdraw(double amount) {
         throw std::invalid_argument("Amount must be positive ");
 
     if(amount > this->balance)
-        throw std::invalid_argument("Low balance: " + std::to_string(amount));
+        throw std::invalid_argument("Low balance ");
     this->balance -= amount;
 }
 

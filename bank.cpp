@@ -123,6 +123,11 @@ void Bank::run() {
                 this->deposit();
                 break;
             }
+            case 10:
+            {
+                this->withdraw();
+                break;
+            }
             default:
                 std::cout << "[ERROR] Invalid call enter again." << std::endl;
                 break;
@@ -543,32 +548,34 @@ void log_deposit(Account& acc,double amount) {
         file << get_current_time() << "|" << "DEPOSIT" << "|-|" << acc.get_account_number() << "|" << amount << std::endl;
 }
 
-void withdraw(Account& acc,double amount) {
-    bool condition{false};
+void Bank::withdraw() {
     char action{};
     while(true){
         try{
-            acc.withdraw(amount);
+            //Input valild id
+            std::string acc_id = input_acc_id();
+            validate_account(acc_id);
+            auto& acc = accounts.at(acc_id);
 
-            if(condition)
-                if(action == 'e')
-                    break;
-                else if(action == 'n'){
-                    std::cout << "New withdraw amount: ";
-                    std::cin >> amount;
-                    condition = false;
-                }else
-                    throw std::invalid_argument("invalid input");
-            else
-                break;
+            //Input valid amount.
+            double amount = input_amount();
+            acc.withdraw(amount);
+            log_withdraw(acc,amount);
+            break;
         }
-        catch(const std::exception& e){
-            std::cout << e.what() << "(e to exit,n new withdraw amount.): ";
+        catch(const std::exception &e){
+            std::cout << "[ERROR] " << e.what() << " (enter e to exit or n to re-enter): ";
             std::cin >> action;
-            condition = true;
+
+            if(action == 'e')
+                break;
+            else if(action == 'n')
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
-
+    if(action != 'e'){
+        std::cout << "transaction completed." << std::endl;
+    }
 }
 
 void log_withdraw(Account& acc,double amount) {
