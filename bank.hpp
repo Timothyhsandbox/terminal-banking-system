@@ -30,4 +30,9 @@ public:
     void log_accounts();//Done.
     void view_customer();
     void regestered_id(std::string id);
+    void view_all_customers();
+    void remove_customer();
+    void view_account();
+    std::unordered_map<std::string,Account>::iterator regestered_account(std::string);
+    void view_all_accounts();
 };

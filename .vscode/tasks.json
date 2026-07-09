@@ -2,17 +2,14 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build C++",
+            "label": "Build C++ Project",
             "type": "shell",
             "command": "C:/mingw64/bin/g++.exe",
             "args": [
                 "-g",
-                "-std=c++17",
-                "-Wall",
-                "-Wextra",
-                "*.cpp",
+                "${workspaceFolder}/*.cpp",
                 "-o",
-                "main.exe"
+                "${workspaceFolder}/main.exe"
             ],
             "group": {
                 "kind": "build",

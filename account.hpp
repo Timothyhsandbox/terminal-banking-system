@@ -18,4 +18,6 @@ public:
     void withdraw(double);
     void valid_id(std::string);
     std::string get_account_number();
+    std::string get_account_balance();
+    std::string get_account_id();
 };

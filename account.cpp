@@ -7,6 +7,7 @@
 #include <random>
 #include <stdexcept>
 #include <cctype>
+#include <sstream>
 
 void deposit(double);
 void withdraw(double);
@@ -146,4 +147,14 @@ void Account::withdraw(double amount) {
 
 std::string Account::get_account_number() {
     return this->account_number;
+}
+
+std::string Account::get_account_balance() {
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(2) << balance;
+    return oss.str();
+}
+
+std::string Account::get_account_id() {
+    return owner_id;
 }

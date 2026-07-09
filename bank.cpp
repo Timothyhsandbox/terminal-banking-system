@@ -11,22 +11,26 @@
 #include <stdexcept>
 #include <chrono>
 #include <limits>
+#include <cctype>
+#include <sstream>
 
+std::string get_current_time();
 void log_transfer(Account &from,Account &to,double amount);
 void log_deposit(Account&,double);
 void log_withdraw(Account&,double);
 std::string make_account_id();
 std::string input_id();
 void valid_id(std::string id);
-std::string get_current_time();
 void view_customer();
-
+void view_all_customers();
+std::string input_acc_id();
+void valid_acc_id(std::string);
 
 //====================================================================================================//
 void Bank::run() {
     while(true){
         std::cout << std::string(52,'=') << std::endl << std::endl;
-        std::cout << "          HINES BANK MANAGEMENT SYSTEM" <<std::endl << std::endl;
+        std::cout << "           HINES BANK MANAGEMENT SYSTEM" <<std::endl << std::endl;
         std::cout << std::string(52,'=') << std::endl;
         std::cout << std::setw(26) << std::left << "[ Customer Management ]" << "|"<< std::setw(26) << "[ Account Management ]" << std::endl;
         std::cout << std::setw(26) << std::left << "1. Create Customer" << "|"<< std::setw(26) << "5. Create Account" << std::endl;
@@ -59,18 +63,47 @@ void Bank::run() {
                 std::cout << "Hines Bank closing..." << std::endl;
                 break;
             }
-            case 1:   
+            case 1: 
+            {
+                try{
                 //input personal information into bank data base.
-                this->make_customer();
-                break;
+                    this->make_customer();
+                }
+                catch(const std::exception& e){
+                    std::cout << e.what() << std::endl;
+                }
+               break;
+            }
             case 2:
                 //Enter ID to see personal data.
                 this->view_customer();
                 break;
-            case 5:
-                this->make_account();
-                //Need to catch exception for not a verified person.
+            case 3:
+                this->view_all_customers();
                 break;
+            case 4: 
+                this->remove_customer();
+                break;
+            case 5:
+            {
+                try{
+                    this->make_account();
+                }catch(const std::exception& e){
+                    //Need to catch exception for not a verified person.
+                    std::cout << e.what() << std::endl;
+                }
+                break;
+            }
+            case 6:
+            {
+                this->view_account();
+                break;
+            }
+            case 7:
+            {
+                this->view_all_accounts();
+                break;
+            }
             default:
                 std::cout << "[ERROR] Invalid call enter again." << std::endl;
                 break;
@@ -106,6 +139,7 @@ void Bank::view_customer() {
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
+
     if(action != 'e'){
         //Find customer in unordered map.
         auto it = customers.find(id);
@@ -131,6 +165,156 @@ void Bank::regestered_id(std::string id) {
     if(customers.find(id) == customers.end())
         throw std::invalid_argument("Customer hasn't regestered");
 }
+
+void Bank::view_all_customers() {
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+    std::cout << "                   CUSTOMER LIST" <<std::endl << std::endl;
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+
+    std::cout << std::left << std::setw(16) << "National ID" << std::setw(22) << "Name" << "Accounts" << std::endl;
+    std::cout << std::string(52,'-') << std::endl << std::endl;
+
+    for(const auto& [id,customer]:customers){
+        std::string name;
+        if(customer.get_middlename() == "-"){
+            name = customer.get_firstname() + " " + customer.get_lastname();
+            std::cout << std::left << std::setw(16) << id << std::setw(22) << name << customer.get_accounts().size() << std::endl;
+        }else{
+            name = customer.get_firstname() + " " + customer.get_middlename() + " " + customer.get_lastname();
+            std::cout << std::left << std::setw(16) << id << std::setw(22) << name << customer.get_accounts().size() << std::endl;
+        }
+    }
+
+    std::cout << '\n' << "Total customers: " << customers.size() << std::endl;
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+}
+
+void Bank::remove_customer() {
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+    std::cout << "                  CUSTOMER REMOVAL" <<std::endl << std::endl;
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+
+    char action{};
+    std::string id{};
+    while(true){
+        try{
+            id = input_id();
+            regestered_id(id);
+            break;
+        }
+        catch(const std::exception &e){
+            std::cout << "[ERROR] " << e.what() << " (enter e to exit or n to re-enter): ";
+            std::cin >> action;
+
+            if(action == 'e')
+                break;
+            else if(action == 'n')
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+    }
+    auto it = customers.find(id);
+    auto accs = it->second.get_accounts();
+    //remove from customers
+    customers.erase(it);
+    //remove customer accounts
+
+    for(const auto& acc:accs){
+        std::unordered_map<std::string,Account>::iterator it = accounts.begin();
+        it = accounts.find(acc);
+        std::cout << "Deleted account " << it->first << std::endl;
+        accounts.erase(it);
+    }
+
+    std::cout << "Customer removed..." <<std::endl;
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+}
+
+void Bank::view_account() {
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+    std::cout << "               ACCOUNT INFORMATION" <<std::endl << std::endl;
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+
+    char action{};
+    std::string acc_id{};
+    std::unordered_map<std::string,Account>::iterator it;
+    while(true){
+        try{
+            acc_id = input_acc_id();
+            it = regestered_account(acc_id);
+            break;
+        }
+        catch(const std::exception &e){
+            std::cout << "[ERROR] " << e.what() << " (enter e to exit or n to re-enter): ";
+            std::cin >> action;
+
+            if(action == 'e')
+                break;
+            else if(action == 'n')
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+    }
+    if(action != 'e'){
+        std::cout << "Owner ID: " << it->second.get_account_id() << std::endl;
+        std::cout << "Amount(THB): " << it->second.get_account_balance() << std::endl << std::endl;
+        std::cout << std::string(52,'=') << std::endl;
+    }
+}
+
+std::unordered_map<std::string,Account>::iterator Bank::regestered_account(std::string acc_id) {
+    std::unordered_map<std::string,Account>::iterator it = accounts.find(acc_id);
+    if(it == accounts.end())
+        throw std::invalid_argument("Account ID doesn't exist.");
+
+    return it;
+}
+std::string input_acc_id() {
+    std::string acc_id;
+    while(true){
+        try{
+            std::cout << "Enter account id: ";
+            std::getline(std::cin,acc_id);
+            valid_acc_id(acc_id);
+            break;
+        }catch(const std::exception& e){
+            std::cout << e.what() << std::endl;
+        }
+    }
+    return acc_id;
+}
+
+void valid_acc_id(std::string acc_id) {
+    if(acc_id.length() != 8)
+        throw std::invalid_argument("Invalid Account id.");
+    
+    for(const char& elem:acc_id){
+        if(!std::isdigit(elem))
+            throw std::invalid_argument("Invaalid Account id.");
+    }
+}
+
+void Bank::view_all_accounts() {
+    std::cout << std::string(73,'=') << std::endl << std::endl;
+    std::cout << std::string(30,' ') << "BANK ACCOUNTS" <<std::endl << std::endl;
+    std::cout << std::string(73,'=') << std::endl << std::endl;
+
+    std::cout << std::left << std::setw(15) << "Account No."<< std::setw(18) << "Owner ID"<< std::setw(25) << "Owner Name"<< std::setw(15) <<  "Balance (THB)" << std::endl;
+    std::cout << std::string(73,'-') << std::endl; 
+
+    for(auto& [acc_id,acc_obj]:accounts){
+        std::ostringstream owner_name;
+        if(customers.at(acc_obj.get_account_id()).get_middlename() != "-"){
+            owner_name << customers.at(acc_obj.get_account_id()).get_firstname() << " " <<  customers.at(acc_obj.get_account_id()).get_middlename() << " " << customers.at(acc_obj.get_account_id()).get_lastname();
+            std::cout << std::left << std::setw (15) << acc_id << std::setw(18) << acc_obj.get_account_id() << std::setw(25) << owner_name.str() << std::setw(15) << acc_obj.get_account_balance() << std::endl;
+        }else{
+            owner_name << customers.at(acc_obj.get_account_id()).get_firstname() << " " << customers.at(acc_obj.get_account_id()).get_lastname();
+            std::cout << std::left << std::setw (15) << acc_id << std::setw(18) << acc_obj.get_account_id() << std::setw(25) << owner_name.str() << std::setw(15) << acc_obj.get_account_balance() << std::endl;
+        }
+    }
+
+    std::cout << std::string(73,'=') << std::endl << std::endl;
+
+}
+
 //====================================================================================================//
 
 std::string Bank::get_current_time() {
@@ -144,11 +328,15 @@ std::string Bank::get_current_time() {
 
 void Bank::make_account() {
     //Make sure that you or a customer first.
-    std::cout << "========== ACCOUNT INFORMATION ==========" << std::endl;
-    std::cout << "|Verify customer id|" << std::endl;
+    std::cout << std::string(52,'=') << std::endl << std::endl;
+    std::cout << "                ACCOUNT INFORMATION" << std::endl << std::endl;
+    std::cout << std::string(52,'=') << std::endl;
+
+    std::cout << "Verify customer id" << std::endl;
     std::string id = input_id();
     if(customers.find(id) == customers.end())
         throw std::invalid_argument("Person hasn't varified identity.");
+    std::cout << std::string(26,'-') << std::endl;
 
     //Make an valid account id.
     std::string acc_id = make_account_id();
@@ -182,7 +370,7 @@ void Bank::log_accounts() {
 
 void Bank::make_customer() {
     std::cout << std::string(52,'=') << std::endl << std::endl;
-    std::cout << "          HINES BANK MANAGEMENT SYSTEM" <<std::endl << std::endl;
+    std::cout << "             CUSTOMER INFORMATION" <<std::endl << std::endl;
     std::cout << std::string(52,'=') << std::endl;
 
     std::string id = input_id();
