@@ -1,1 +1,17 @@
+# Executables
+*.exe
 
+# Object files
+*.o
+*.obj
+
+# VS Code settings
+.vscode/
+
+# Data files
+account.txt
+customer.txt
+transaction.txt
+
+# Optional log files
+*.log
