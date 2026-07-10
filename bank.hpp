@@ -26,8 +26,10 @@ public:
     void deposit();
     void withdraw();
     void show();
-    void log_customers();//Haven't implimented yet.
-    void log_accounts();//Done.
+    void log_customers();
+    void log_accounts();
+    void load_customers();
+    void load_accounts();
     void view_customer();
     void regestered_id(std::string id);
     void view_all_customers();

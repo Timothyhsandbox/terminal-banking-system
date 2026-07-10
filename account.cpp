@@ -22,13 +22,16 @@ double initial_account_balance();
 void valid_balance(std::string&);
 
 std::ostream& operator<<(std::ostream &os,const Account &a) {
-    os << a.account_number << "|" << a.owner_id << "|" << a.balance << std::endl;
+    os << a.account_number << "|" << a.owner_id  << "|" << a.datetime_created << "|" << a.pin << "|" << a.balance << std::endl;
     return os;
 }
 
 Account::Account(std::string acc_num,std::string id)
     //Still have to add functions(Will let Bank make account number because need to access all the accounts)
     : account_number(acc_num),owner_id(id),status("Active"),datetime_created(get_current_time()),pin(get_pin()),balance(initial_account_balance()) {};
+
+Account::Account(std::string acc_num,std::string id,std::string date_time,std::string pin,double balance)
+    : account_number(acc_num),owner_id(id),status("Active"),datetime_created(date_time),pin(pin),balance(balance) {};
 
 std::string get_current_time() {
     auto now = std::chrono::system_clock::now(); //Gets time from system

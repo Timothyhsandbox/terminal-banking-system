@@ -14,6 +14,7 @@ private:
     std::vector<std::string> account_ids;
 public:
     Customer(std::string id);
+    Customer(std::string id,std::string firstname,std::string middlename,std::string lastname,std::string email);
     std::string get_firstname() const;
     std::string get_middlename() const;
     std::string get_lastname() const;

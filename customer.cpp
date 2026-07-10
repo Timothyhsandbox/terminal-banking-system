@@ -40,6 +40,14 @@ Customer::Customer(std::string id)
       email(inputemail()),
       account_ids(std::vector<std::string>{}) {};
 
+Customer::Customer(std::string id,std::string firstname,std::string middlename,std::string lastname,std::string email)
+    : first_name(firstname),
+      middle_name(middlename),
+      last_name(lastname),
+      customer_id(id),
+      email(email),
+      account_ids(std::vector<std::string>{}) {std::cout << "Constructor for loader activated." << std::endl;};
+
 std::string Customer::get_firstname() const {
     return first_name;
 }

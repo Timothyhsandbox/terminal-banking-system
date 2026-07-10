@@ -31,6 +31,10 @@ void valid_amount(double);
 std::vector<std::string> split(const std::string&,char);
 //====================================================================================================//
 void Bank::run() {
+    //Load data from files.
+    load_customers();
+    load_accounts();
+
     bool terminate{false};
     while(true){
         std::cout << std::string(52,'=') << std::endl << std::endl;
@@ -65,10 +69,11 @@ void Bank::run() {
         switch(fn){
             case 0:
             {
-                //Log data to files:
-                this->log_accounts();
-                this->log_customers();
+                //Log accounts and customers to file.txt
+                log_accounts();
+                log_customers();
                 terminate = true;
+                std::cout << "Saving data..." << std::endl;
                 std::cout << "Hines Bank closing..." << std::endl;
                 break;
             }
@@ -251,20 +256,22 @@ void Bank::remove_customer() {
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
-    auto it = customers.find(id);
-    auto accs = it->second.get_accounts();
-    //remove from customers
-    customers.erase(it);
-    //remove customer accounts
+    if(action != 'e'){
+        auto it = customers.find(id);
+        auto accs = it->second.get_accounts();
+        //remove from customers
+        customers.erase(it);
+        //remove customer accounts
 
-    for(const auto& acc:accs){
-        std::unordered_map<std::string,Account>::iterator it = accounts.begin();
-        it = accounts.find(acc);
-        std::cout << "Deleted account " << it->first << std::endl;
-        accounts.erase(it);
+        for(const auto& acc:accs){
+            std::unordered_map<std::string,Account>::iterator it = accounts.begin();
+            it = accounts.find(acc);
+            std::cout << "Deleted account " << it->first << std::endl;
+            accounts.erase(it);
+        }
+
+        std::cout << "Customer removed..." <<std::endl;
     }
-
-    std::cout << "Customer removed..." <<std::endl;
     std::cout << std::string(52,'=') << std::endl << std::endl;
 }
 
@@ -307,6 +314,7 @@ std::unordered_map<std::string,Account>::iterator Bank::regestered_account(std::
 
     return it;
 }
+
 std::string Bank::input_acc_id() {
     std::string acc_id;
     while(true){
@@ -448,10 +456,9 @@ void Bank::view_customer_transactions() {
             if(data.size() == 5)
                 if(data[2] == acc_id || data[3] == acc_id)
                     std::cout << std::left << std::setw(22) << data[0] << std::setw(12) << data[1] << std::setw(10) << data[2] << std::setw(10) << data[3] << std::setw(10) << data[4] << '\n';
-            else
-                break;
         }
     }
+    file.close();
     std::cout << std::string(64,'=') << std::endl;
 }
 
@@ -479,7 +486,7 @@ void Bank::view_all_transactions() {
             if(data.size() == 5)
                 std::cout << std::left << std::setw(22) << data[0] << std::setw(12) << data[1] << std::setw(10) << data[2] << std::setw(10) << data[3] << std::setw(10) << data[4] << '\n';
             else
-                break;
+                break;  
         }
     }
 
@@ -531,12 +538,36 @@ std::string make_account_id() {
 }
 
 void Bank::log_accounts() {
-    std::ofstream file{"account.txt",std::ios::trunc};
+    std::ofstream file{"account.txt"};
     if(!file)
         throw std::runtime_error("Could not open account.txt");
     else   
-        for(const auto& [acc_id,acc_obj]:accounts)
-            file << acc_obj;
+        for(const auto& [id,acc]:accounts)
+            file << acc;
+    
+}
+
+void Bank::load_accounts() {
+    //Read whole file
+    std::ifstream file{"account.txt"};
+
+    if(!file){
+        std::cerr << "Failed to open file." << std::endl;
+        return;
+    }
+
+    std::string line;
+    while(std::getline(file,line)){
+
+        if(line.empty())
+            continue;
+
+        std::vector<std::string> ans = split(line,'|');
+
+        //Create account objects.file format (account_id,National_id,balance)
+        accounts.emplace(ans[0],Account(ans[0],ans[1],ans[2],ans[3],std::stod(ans[4])));
+    }
+    file.close();
 }
 
 void Bank::make_customer() {
@@ -550,7 +581,9 @@ void Bank::make_customer() {
     if (customers.find(id) != customers.end())
         throw std::invalid_argument("Customer already exists.");
 
+    //Constructc customer
     customers.emplace(id,Customer(id));
+
 }
 
 std::string Bank::input_id() {
@@ -582,14 +615,46 @@ void valid_id(std::string id) {
             throw std::invalid_argument("ID must contain only digits ");
     }
 }
+void Bank::load_customers() {
+    //Read whole file
+    std::ifstream file{"customer.txt"};
+
+    if(!file){
+        std::cerr << "Failed to open file." << std::endl;
+        return;
+    }
+
+    std::string line;
+    while(std::getline(file,line)){
+
+        if(line.empty())
+            continue;
+
+        std::vector<std::string> ans = split(line,'|');
+
+        //Create customer objects.file format (National_id,firstname,middlename,lastname,email,accounts)
+        customers.emplace(ans.at(0),Customer(ans.at(0),ans.at(1),ans.at(2),ans.at(3),ans.at(4)));
+
+        //Deal with accounts of the customer find ',' for multiple accounts 
+        Customer &cus = customers.at(ans.at(0));
+        if (ans.size() == 6 && !ans[5].empty()) {
+            auto accs = split(ans[5], ',');
+
+            for (const auto& account : accs)
+                cus.add_account(account);
+        }
+    }
+    file.close();
+}
+
 
 void Bank::log_customers() {
-    std::ofstream file{"customer.txt",std::ios::trunc};
+    std::ofstream file{"customer.txt"};
     if(!file)
         throw std::runtime_error("Could not open customer.txt");
-    else   
-        for(const auto& [cus_id,cus_obj]:customers)
-            file << cus_obj << std::endl;
+    else 
+        for(const auto& [cus_id,cus]:customers)
+            file << cus << std::endl;
 }
 
 void Bank::transfer() {

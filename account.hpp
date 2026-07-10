@@ -6,7 +6,7 @@
 class Account{
 friend std::ostream& operator<<(std::ostream &os,const Account &a);
 private:
-    std::string account_number; //Still don't have a randomizer.
+    std::string account_number; //done.
     std::string owner_id; //Done
     std::string status; //Set default to Active can change to frozen and closed.
     std::string datetime_created; //done 
@@ -14,6 +14,7 @@ private:
     double balance; //Done
 public:
     Account(std::string,std::string);
+    Account(std::string,std::string,std::string,std::string,double);
     void deposit(double);
     void withdraw(double);
     void valid_id(std::string);
